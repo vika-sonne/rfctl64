@@ -58,7 +58,7 @@ static struct cdev rfctl_dev;
 #define NO_RX_IRQ               -1
 
 #define DEFAULT_GPIO_IN_PIN     NO_GPIO_PIN // 27
-#define DEFAULT_GPIO_OUT_PIN    17
+#define DEFAULT_GPIO_OUT_PIN    6
 
 static int dev_major = 0;	/* use dynamic major number assignment */
 
@@ -113,7 +113,7 @@ static int sense = 0;		/* -1 = auto, 0 = active high, 1 = active low */
 
 static int irq = NO_RX_IRQ;
 
-static struct timeval lasttv = { 0, 0 };
+static struct timespec64 lasttv = { 0, 0 };
 
 /* static struct lirc_buffer rbuf; */
 
@@ -250,9 +250,9 @@ static void send_space_gpio(unsigned long length)
 
 static irqreturn_t irq_handler(int i, void *blah)
 {
-	struct timeval tv;
+	struct timespec64 tv;
 	int status;
-	long deltv;
+	long time_delta;
 	int32_t data = 0;
 	static int old_status = -1;
 	static int counter = 0;	/* to find burst problems */
@@ -273,7 +273,7 @@ static irqreturn_t irq_handler(int i, void *blah)
 	counter = 0;
 
 	/* get current time */
-	do_gettimeofday(&tv);
+	ktime_get_ts64(&tv);
 
 	/* New mode, written by Trent Piepho
 	   <xyzzy@u.washington.edu>. */
@@ -294,16 +294,17 @@ static irqreturn_t irq_handler(int i, void *blah)
 	 */
 
 	/* calc time since last interrupt in microseconds */
-	deltv = tv.tv_sec - lasttv.tv_sec;
-	if (tv.tv_sec < lasttv.tv_sec || (tv.tv_sec == lasttv.tv_sec && tv.tv_usec < lasttv.tv_usec)) {
+	time_delta = tv.tv_sec - lasttv.tv_sec;
+	if (tv.tv_sec < lasttv.tv_sec || (tv.tv_sec == lasttv.tv_sec && tv.tv_nsec < lasttv.tv_nsec)) {
 		warnx("AIEEEE: your clock just jumped " "backwards\n");
-		warnx("%d %lx %lx %lx %lx\n",
-		       sense, tv.tv_sec, lasttv.tv_sec, tv.tv_usec, lasttv.tv_usec);
+		warnx("%d %lld %lld %ld %ld\n",
+		       sense, tv.tv_sec, lasttv.tv_sec, tv.tv_nsec, lasttv.tv_nsec);
 		data = status ? (data | LIRC_VALUE_MASK) : (data | LIRC_MODE2_PULSE | LIRC_VALUE_MASK);	/* handle as too long time */
-	} else if (deltv > 15) {
+	} else if (time_delta > 15) {
 		data = status ? (data | LIRC_VALUE_MASK) : (data | LIRC_MODE2_PULSE | LIRC_VALUE_MASK);	/* really long time */
 	} else {
-		data = (int32_t) (deltv * 1000000 + tv.tv_usec - lasttv.tv_usec);
+		time_delta = ((tv.tv_sec * 1000000) + (tv.tv_nsec / 1000)) - ((lasttv.tv_sec * 1000000) + (lasttv.tv_nsec / 1000));
+		data = (int32_t)time_delta;
 	}
 
 	/* frbwrite(status ? data : (data|PULSE_BIT)); */
@@ -352,6 +353,8 @@ static int gpio_init(void)
 {
 	unsigned long flags;
 	int err = 0;
+
+	info("gpio_init() pins: out=%i, in=%i, ctrl=%i, rf_enable=%i\n", gpio_out_pin, gpio_in_pin, tx_ctrl_pin, rf_enable_pin);
 
 	/* First of all, disable all interrupts */
 	local_irq_save(flags);
@@ -472,7 +475,7 @@ static int rfctl_open(struct inode *ino, struct file *filep)
 	}
 
 	/* initialize timestamp */
-	do_gettimeofday(&lasttv);
+	ktime_get_ts64(&lasttv);
 
 	if (irq != NO_RX_IRQ) {
 		local_irq_save(flags);
