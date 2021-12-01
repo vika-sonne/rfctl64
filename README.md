@@ -3,10 +3,10 @@
 [![License Badge][]][License] [![Travis Status][]][Travis]
 
 [rfctl][] is a simple Linux driver and control tool for 433.92 MHz RF
-communication on Raspberry Pi.
+communication.
 
-The following guide assumes the Raspbian Linux distribution is used on
-the Raspberry Pi.  However, the kernel driver and the `rfctl` tool
+The following guide assumes the [Raspbian](https://raspbian.org/) Linux distribution is used on
+the Raspberry Pi or [Armbian](https://www.armbian.com/download/?tx_maker=xunlong) on Orange Pi.  However, the kernel driver and the `rfctl` tool
 should work fine on any distribution with a relatively modern kernel.
 
 The following formum topic, although dated, also covers this driver and
@@ -22,7 +22,7 @@ It is a LIRC style kernel device driver transmitting and recording pulse
 and pause lengths by bit banging on a GPIO pin.  See [HARDWARE.md][] for
 information on how to connect the GPIO to a common 433 MHz TX module.
 
-## buld
+## build
 
 To build you first need to install the kernel headers.
 
@@ -71,11 +71,13 @@ Check kernel log:
 dmesg|grep rfctl
 ```
 
-Check GPIO pins status by [WiringPi](http://wiringpi.com/).
+Check GPIO pins status by [WiringPi](http://wiringpi.com/) for Raspberry Pi.
+
+Orange Pi versions of wiring utilities: [WiringOP](https://github.com/orangepi-xunlong/wiringOP) and [wiringOP-Python](https://github.com/orangepi-xunlong/wiringOP-Python).
 
 ![orangepizero](img/orangepizero.png)For example, on Orange PI Zero (see 6 & 7 in GPIO column):
 ```sh
-root@orangepizero:/home/1/wiringOP-master/gpio/gpio readall
+gpio readall
  +------+-----+----------+------+---+  OPi H2  +---+------+----------+-----+------+
  | GPIO | wPi |   Name   | Mode | V | Physical | V | Mode | Name     | wPi | GPIO |
  +------+-----+----------+------+---+----++----+---+------+----------+-----+------+
@@ -245,7 +247,7 @@ usage: rfanalysis.py [-h] [-l SAMPLE_LEN] [-d] [-D] [-s START_TIME] [-e END_TIME
 Rfdump analysis tool. Helps coding schemes snalysis from binary dump file.
 
 positional arguments:
-  BIN_DUMP_FILE_PATH  Dump binary file or stdin; exmple: "rfdump.bin" or "-"
+  BIN_DUMP_FILE_PATH  Dump binary file or stdin; exaple: "rfdump.bin" or "-"
 
 optional arguments:
   -h, --help          show this help message and exit
@@ -293,6 +295,40 @@ cat ./keys/A.key
 003_247 0 00_712
 003_959 1 00_335
 004_294 0 00_710
+```
+
+### **./scan_and_add_key.sh**
+```sh
+./scan_and_add_key.sh -h
+Scans 433MHz RF, checks it detection & stores to .key file
+
+Usage:
+./scan_and_add_key.sh <key file path> [<path for temporary rfctl.bin and rfctl.key files; default: /tmp>]
+
+Use environment variables:
+RFCTL_KEYS_PATH default: .
+RFCTL_KEYS_PATH default: keys
+```
+
+Add new A key:
+```sh
+./scan_and_add_key.sh "A.key"
+rfctl.key
+rfctl.key
+rfctl.key
+rfctl.key
+rfctl.key
+```
+Add new D key:
+```sh
+./scan_and_add_key.sh "D.key"
+rfctl.key
+rfctl.key
+rfctl.key
+rfctl.key
+rfctl.key
+rfctl.key
+rfctl.key
 ```
 
 
