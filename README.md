@@ -162,6 +162,8 @@ receivers and time :)
 
 ![example_full](img/rfdetect.png)
 
+For remote control see web server: [WEB.md][].
+
 ### **rfdump**
 
 ```sh
@@ -297,7 +299,7 @@ cat ./keys/A.key
 004_294 0 00_710
 ```
 
-### **./scan_and_add_key.sh**
+### **scan_and_add_key.sh**
 ```sh
 ./scan_and_add_key.sh -h
 Scans 433MHz RF, checks it detection & stores to .key file
@@ -306,7 +308,7 @@ Usage:
 ./scan_and_add_key.sh <key file path> [<path for temporary rfctl.bin and rfctl.key files; default: /tmp>]
 
 Use environment variables:
-RFCTL_KEYS_PATH default: .
+RFCTL_PYTHON_PATH default: .
 RFCTL_KEYS_PATH default: keys
 ```
 
@@ -316,19 +318,19 @@ Add new A key:
 rfctl.key
 rfctl.key
 rfctl.key
-rfctl.key
-rfctl.key
+
+ls ./keys
+A.key
 ```
 Add new D key:
 ```sh
 ./scan_and_add_key.sh "D.key"
 rfctl.key
 rfctl.key
-rfctl.key
-rfctl.key
-rfctl.key
-rfctl.key
-rfctl.key
+
+ls ./keys
+A.key
+D.key
 ```
 
 

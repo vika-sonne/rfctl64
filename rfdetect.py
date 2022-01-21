@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
 from sys import argv, byteorder, stdin, stdout, exit, stderr
-from getopt  import getopt, GetoptError
+from getopt import getopt, GetoptError
 from glob import glob
 from os.path import join as path_join, abspath, basename
-from time import time
 
 
 # LIRC (Linux Infrared Remote Control) constants
@@ -14,15 +13,16 @@ LIRC_MODE2_SPACE = 0x00000000
 LIRC_MODE2_PULSE = 0x01000000
 LIRC_MODE2_TIMEOUT = 0x03000000
 
-device_path = '/dev/rfctl' # for <device> command-line option
-keys_path = './keys' # for <device> command-line option
-key_path = None # key file
-key_time_tolerance = .15 # koefficient
-verbose = 0 # verbose level for -v & -V command-line options
-dump_file, verbose_file = stdin, None # file descriptors for input dump binary file & verbose messages
+device_path = '/dev/rfctl'  # for <device> command-line option
+keys_path = './keys'  # for <device> command-line option
+key_path = None  # key file
+key_time_tolerance = .15  # koefficient
+verbose = 0  # verbose level for -v & -V command-line options
+dump_file, verbose_file = stdin, None  # file descriptors for input dump binary file & verbose messages
 
 usage = f'''
-Detect from device or binary dump file. Detection patterns read from .key files. Key file is space separated values text table; row is level & time (according LIRC dumps).
+Detect from device or binary dump file. Detection patterns read from .key files.
+Key file is space separated values text table; row is level & time (according LIRC dumps).
 
 Usage: python3 {argv[0]} -v -k <path to .key files> -f <.key file>
 	-v                     verbose
@@ -34,6 +34,7 @@ Examples:
 	python3 {argv[0]}
 	cat rfdump.bin | python3 {argv[0]} -v -
 '''
+
 
 def main():
 
@@ -95,7 +96,7 @@ def main():
 		return False
 
 	# list of keys, key is tuple of bits, bit is tuple of level (low/high) & time length (us)
-	detection_keys: dict[str,tuple[tuple[int,int]]] = load_keys()
+	detection_keys: dict[str, tuple[tuple[int, int]]] = load_keys()
 	if not detection_keys or not any(detection_keys):
 		print('No any keys to detection. Exit', file=stderr)
 		exit(-1)
@@ -109,7 +110,7 @@ def main():
 		fd_read = fd.read
 	else:
 		fd_read = dump_file.buffer.read
-	bits = [] # recieved bits
+	bits = []  # recieved bits
 	bit_time_k_low, bit_time_k_high = 1 - key_time_tolerance, 1 + key_time_tolerance
 	if verbose_file:
 		print('READY', file=verbose_file)
@@ -138,6 +139,7 @@ def main():
 						bits.clear()
 		elif device_path == '-':
 			break
+
 
 # process command-line
 

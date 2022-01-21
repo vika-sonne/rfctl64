@@ -1,0 +1,124 @@
+
+body {
+	margin: 0;
+	/* display: table; */
+	/* width: 100%; */
+	min-height: 100vh;
+	/* user-select: none; */
+}
+/* main {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: flex-start;
+} */
+/* .graph {
+} */
+footer {
+	/* display: table-row; */
+	user-select: text;
+	font-size: small;
+}
+header {
+	font-size: xx-large;
+	text-align: center;
+	padding: 1px;
+	padding-bottom: 12px;
+	background: repeating-radial-gradient(
+		circle,
+		transparent 0px,
+		transparent 0px,
+		#ccc 15%,
+		#bbb 35%
+		);
+	background-size: 15px 15px;
+	background-position: bottom center;
+	background-repeat: repeat-x;
+}
+.header-menu {
+	font-size: medium;
+	position: absolute;
+	top: 0;
+	right: 0;
+	letter-spacing: 1px;
+	margin: 0.5em;
+}
+#keys_table {
+	/* max-width: 1200px; */
+	min-width: 400px;
+	min-height: 30px;
+	max-height: 400px;
+	width: 95%;
+	margin: 5px auto;
+	padding: 1px;
+	overflow-x: auto;
+	overflow-y: auto;
+	border-top: 1px solid;
+	border-left: 2px solid;
+	border-right: 2px solid;
+	border-bottom: 2px solid;
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
+	vertical-align: bottom;
+	letter-spacing: 1px;
+}
+CAPTION.keys_table {
+	font-size: 12pt;
+	padding: 10px;
+	border: 2px solid;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	border-bottom: none;
+}
+INPUT.keys_table_sort {
+	font-size: 7pt;
+	align-content: center;
+	padding: 0;
+	margin: 0 3px;
+	vertical-align: baseline;
+}
+INPUT {
+	box-shadow: 2px 2px 3px rgb(0 0 0 / 40%);
+}
+INPUT.value_is_invalid, INPUT:invalid {
+	background-color: red;
+}
+THEAD.keys_table {
+	background-color: #eee;
+}
+.keys_table_row:nth-child(even) {
+	background: #eee;
+}
+.keys_table_name {
+	font-weight: bold;
+}
+.keys_table_dt {
+	width: 1%;
+	white-space: nowrap;
+	font-stretch: wider;
+}
+.keys_table_control {
+	width: 1%;
+	white-space: nowrap;
+}
+#keys_add_result {
+	border: 2px solid;
+	margin: 5px;
+	padding: 10px;
+}
+#page_about {
+	margin: auto;
+}
+TD.about-section {
+	text-align: center;
+	border-bottom: 2px solid;
+}
+TD.about-name {
+	border-left: 10px solid;
+	border-radius: 10px;
+	font-weight: none;
+}
+TD.about-value {
+	font-weight: bold;
+}

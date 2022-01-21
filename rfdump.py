@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 from sys import argv, stdout, exit, stderr
-from getopt  import getopt, GetoptError
+from getopt import getopt, GetoptError
 from time import time
 
 
-device_path = '/dev/rfctl' # for <device> command-line option
-dump_time = -1 # for -t command-line option
-verbose = 0 # verbose level for -v & -V command-line options
-verbose_file, bin_file = None, stdout # file descriptors for verbose messages & out binary file
+device_path = '/dev/rfctl'  # for <device> command-line option
+dump_time = -1  # for -t command-line option
+verbose = 0  # verbose level for -v & -V command-line options
+verbose_file, bin_file = None, stdout  # file descriptors for verbose messages & out binary file
 
 usage = f'''
 Dumps from device file by 4 bytes LIRC sequence.
@@ -24,8 +24,9 @@ Examples:
 	{argv[0]} -V -t .1 > rfdump.bin
 '''
 
+
 def main():
-	start_time = time() # used for dump time
+	start_time = time()  # used for dump time
 	if verbose_file:
 		print(f'Open device file {device_path}', file=verbose_file)
 	fd = open(device_path, 'rb')
@@ -46,6 +47,7 @@ def main():
 				return
 	except BrokenPipeError:
 		exit(-1)
+
 
 # process command-line
 

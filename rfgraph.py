@@ -17,6 +17,7 @@ LIRC_MODE2_SPACE = 0x00000000
 LIRC_MODE2_PULSE = 0x01000000
 LIRC_MODE2_TIMEOUT = 0x03000000
 
+
 def main():
 	data: Iterable[Tuple[int, int]] = []
 	start_time, end_time = args.s, args.e
@@ -50,28 +51,31 @@ def main():
 		y=tuple(x[0] for x in data),
 		),
 		row=len(fig.data) + 1, col=1
-		)
+	)
 	fig.update_yaxes(row=len(fig.data), col=1, showticklabels=False)
 	fig.update_xaxes(title_text="Time, µs", row=len(fig.data), col=1)
 	fig.update_layout(margin=dict(l=0, r=0, t=20, b=0, pad=0))
 	if start_time is not None:
 		# set time line range
-		fig.update_layout(xaxis_range=[0,time_line - start_time if end_time is None else end_time - start_time])
+		fig.update_layout(xaxis_range=[0, time_line - start_time if end_time is None else end_time - start_time])
 	print(to_html(fig, include_plotlyjs='cdn', full_html=False))
+
 
 # process command-line
 
 def parse_args():
 	parser = argparse.ArgumentParser(
-		description='Rfdump graph tool. Makes interactive graph (based on plotly https://plotly.com/python/line-charts/) from binary dump file.',
+		description='''Rfdump graph tool.
+			Makes interactive graph (based on plotly https://plotly.com/python/line-charts/)from binary dump file.''',
 		epilog='Example:\npython3 rfgraph.py -t "Example of 3 times of key pushing" rfdump.bin > example.htm'
-		)
+	)
 	parser.add_argument('f', metavar='BIN_DUMP_FILE_PATH', help='Binary dump file; example: "rfdump.bin"')
-	parser.add_argument('-t', metavar='GRAPH_TITLE', help=f'By default is file name')
-	parser.add_argument('-s', metavar='START_TIME', type=int, help=f'Filter by time: start time, µs; example: "-s 2_220_000"')
-	parser.add_argument('-e', metavar='END_TIME', type=int, help=f'Filter by time: end time, µs; example: "-e 2_270_000"')
+	parser.add_argument('-t', metavar='GRAPH_TITLE', help='By default is file name')
+	parser.add_argument('-s', metavar='START_TIME', type=int, help='Filter by time: start time, µs; example: "-s 220_000"')
+	parser.add_argument('-e', metavar='END_TIME', type=int, help='Filter by time: end time, µs; example: "-e 2_270_000"')
 	args = parser.parse_args()
 	return args
+
 
 args = parse_args()
 

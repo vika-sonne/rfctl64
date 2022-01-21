@@ -3,6 +3,7 @@
 from sys import byteorder, stdin, stderr, stdout
 import argparse
 from time import sleep
+from datetime import datetime
 from statistics import quantiles #, mean, stdev
 from typing import Iterable, List, Tuple, Optional
 
@@ -36,8 +37,10 @@ class Analysis:
 		self.bit_times: List[Tuple[float, Tuple[int]]] = []
 
 	@classmethod
-	def _get_sequence_as_key(cls, sequence: Tuple[float, Tuple[int]]) -> str:
-		return '# delta={:.1%}\n{}'.format(
+	def _get_sequence_as_key(cls, sequence: Tuple[float, Tuple[int]], description: Optional[str] = None) -> str:
+		return '#@{}\n{}#!delta={:.1%}\n{}'.format(
+			datetime.utcnow().isoformat(timespec='seconds'),
+			'#!desc=' + description + '\n' if description else '',
 			sequence[0],
 			"\n".join(('0 ' if i % 2 else '1 ') + str(int(round(x))) for i , x in enumerate(sequence[1]))
 			)
@@ -149,7 +152,7 @@ class Analysis:
 						del bit_times[0:2]
 		return ret
 
-	def get_sequence(self) -> Optional[list]:
+	def get_sequence(self, description: Optional[str] = None) -> Optional[list]:
 		# get sequences with nearest to max(quantiles) of bits count
 		q = quantiles((len(x[1]) for x in self.sequences))
 		seq_len = int(max(q))
@@ -167,7 +170,8 @@ class Analysis:
 		if verbose_fd:
 			print(f'{sequence_index=} {tuple(x for x in sequence_indexes if x[1] == sequence_indexes[0][1])=}', file=verbose_fd)
 		return self._get_sequence_as_key(
-			(self.sequences[sequence_index][0], self._calc_avg_sequence(self.sequences[sequence_index][1]))
+			(self.sequences[sequence_index][0], self._calc_avg_sequence(self.sequences[sequence_index][1])),
+			description
 			)
 
 	def clear(self):
@@ -211,7 +215,7 @@ def main():
 		elif fd != stdin:
 			if args.k:
 				try:
-					print(analysis.get_sequence())
+					print(analysis.get_sequence(args.k))
 				except:
 					fd.close()
 					exit(-1)
@@ -222,7 +226,7 @@ def main():
 def parse_args():
 	parser = argparse.ArgumentParser(
 		description='Rfdump analysis tool. Helps coding schemes snalysis from binary dump file.',
-		epilog='Example:\npython3 rfanalysis.py rfdump.bin -k > 1.key'
+		epilog='Example:\npython3 rfanalysis.py rfdump.bin -k "Key description" > 1.key'
 		)
 	parser.add_argument('f', metavar='BIN_DUMP_FILE_PATH', help='Dump binary file or stdin; example: "rfdump.bin" or "-"')
 	parser.add_argument('-l', metavar='SAMPLE_LEN', default=DEFAULT_MIN_SAMPLE_LEN, type=int, help=f'Sample length; default: {DEFAULT_MIN_SAMPLE_LEN}')
@@ -231,7 +235,7 @@ def parse_args():
 	parser.add_argument('-D', action='store_true', help='As -d but dump also a hex values')
 	parser.add_argument('-s', metavar='START_TIME', type=int, help=f'Filter by time: start time, µs; example: "-s 2_220_000"')
 	parser.add_argument('-e', metavar='END_TIME', type=int, help=f'Filter by time: end time, µs; example: "-e 2_270_000"')
-	parser.add_argument('-k', action='store_true', help='Print detected sequene to stdout as key file')
+	parser.add_argument('-k', metavar='DESCRIPTION', help='Print detected sequene to stdout as key file with description')
 	parser.add_argument('-v', action='store_true', help='verbose')
 	args = parser.parse_args()
 	return args
