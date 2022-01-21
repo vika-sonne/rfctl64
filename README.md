@@ -162,7 +162,7 @@ receivers and time :)
 
 ![example_full](img/rfdetect.png)
 
-For remote control see web server: [WEB.md][].
+For remote control see web server readme: [WEB.md](WEB.md).
 
 ### **rfdump**
 
