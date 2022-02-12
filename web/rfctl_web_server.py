@@ -10,6 +10,7 @@ from glob import glob
 from typing import Tuple, Optional, Iterable
 from re import compile as re_compile
 from uuid import uuid4
+from settings import RfctlSettings
 
 
 page_title = 'Rfctl web server'
@@ -75,6 +76,32 @@ def static_file(filename: str) -> Optional[str]:
 @route('/favicon.ico')
 def favicon():
     return ("/static/favicon.ico")
+
+
+def set_keys_settings(key_uuid: str, event: Optional[str] = None, enabled: Optional[bool] = None):
+
+	def set_settings(ks: RfctlSettings.KeyRow):
+		if event is not None:
+			ks.event = event
+		if enabled is not None:
+			ks.enabled = enabled
+
+	if (ks := RfctlSettings.key_settings.get(key_uuid)):
+		set_settings(ks)
+	else:
+		# create settings for a new key
+		ks = RfctlSettings.KeyRow
+		set_settings(ks)
+		RfctlSettings.key_settings[key_uuid] = ks
+	RfctlSettings.save()
+
+
+def del_keys_settings(key_uuid: str):
+	try:
+		del RfctlSettings.key_settings[key_uuid]
+	except KeyError:
+		return
+	RfctlSettings.save()
 
 
 # pages handlers
@@ -195,6 +222,9 @@ def api_keys():
 			)
 			print(cmd)
 			exitcode, output = getstatusoutput(cmd)
+			if exitcode == 0:
+				add_key_event, add_key_enabled = request.params.get('event'), request.params.get('enabled')
+				set_keys_settings(add_key_name[:-4], add_key_event, add_key_enabled)
 		else:
 			exitcode, output = '1', 'Key description is incorrect'
 		buff = '{{"code":{},"output":"{}"}}'.format(str(exitcode), escape_json(str(output)))
@@ -206,6 +236,7 @@ def api_keys():
 				print('rm "{}"'.format(fpath))
 				os_remove(fpath)
 				exitcode, output = 0, ''
+				del_keys_settings(delete_key_name)
 			except Exception as e:
 				exitcode, output = 2, str(e)
 		else:
@@ -221,12 +252,19 @@ def api_keys():
 			reverse=sort_dt == 'up' if sort_dt else sort_name == 'up',
 			key=lambda x: x[1] if sort_dt else x[0])
 		buff = '[{}]'.format(
-			','.join('{{"key":"{}","dt":"{}","desc":"{}"}}'.format(x[0], x[1], x[2]) for x in keys)
+			','.join('{{"key":"{}","dt":"{}","desc":"{}","event":"{}","enabled":"{}"}}'.format(
+				x[0], x[1], x[2],
+				RfctlSettings.key_settings[x[0]].event if x[0] in RfctlSettings.key_settings else '',
+				RfctlSettings.key_settings[x[0]].enabled if x[0] in RfctlSettings.key_settings else ''
+				) for x in keys)
 		)
 	return buff
 
 
 if __name__ == "__main__":
+	# load settings
+	RfctlSettings.load()
+	# start server
 	use_https, debug_server = False, True
 	run_args = {
 		'host': '0.0.0.0',

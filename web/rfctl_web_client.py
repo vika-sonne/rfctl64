@@ -194,10 +194,12 @@ def build_page_keys():
 				html.TD(k['key'], Class='keys_table_name')
 				+ html.TD(k['dt'], Class='keys_table_dt')
 				+ html.TD(k['desc'], Class='keys_table_name')
-				+ html.TD(
-					html.BUTTON('🗑', style={'background-color': 'salmon'}, onclick='window.key_del("{}")'.format(k['key'])) +
-					html.BUTTON('Disable'), Class='keys_table_control'
-				), Class='keys_table_row')
+				+ html.TD(k.get('event'))
+				+ html.TD(html.INPUT(type='checkbox', checked=bool(k.get('enabled'))))
+				# + html.TD(
+				# 	html.BUTTON('🗑', style={'background-color': 'salmon'}, onclick='window.key_del("{}")'.format(k['key'])) +
+				# 	html.BUTTON('Disable'), Class='keys_table_control'
+				, Class='keys_table_row')
 
 	def keys_list(args):
 		if (f := doc['keys_name_filter'].value):
@@ -236,6 +238,7 @@ def build_page_keys():
 				, Class='keys_table_head')
 			+ html.TD(Class='keys_table_head')
 			+ html.TD(Class='keys_table_head')
+			+ html.TD(Class='keys_table_head')
 			, Class='keys_table_head')
 		, Class='keys_table')
 	keys_table <= html.TBODY(id='keys_table_body')
@@ -268,10 +271,11 @@ def build_page_add_key():
 			add_result <= html.P(data['output'])
 
 	def keys_add_key():
-		if (f := doc['keys_name_filter'].value):
+		if (f := doc['keys_add_description'].value):
 			doc['keys_add_result'].clear()
 			doc['keys_add_result'].innerHTML = '<p>⚙ Working ...</p>'
-			add_key({'add': f})  # send Ajax request
+			event, enabled = doc['keys_add_event'].value, doc['keys_add_enabled'].checked
+			add_key({'add': f, 'event': event, 'enabled': enabled if event else False})  # send Ajax request
 
 	window.keys_add_key = keys_add_key
 
@@ -292,7 +296,9 @@ def build_page_add_key():
 	main = html.MAIN(role='main')
 	main <= html.P(
 		'Key description:'
-		+ html.INPUT(type='text', id='keys_name_filter', maxlength='100', minlength='1', placeholder='description', oninput='window.key_check_desc(event)')
+		+ html.INPUT(type='text', id='keys_add_description', maxlength='100', minlength='1', placeholder='description', oninput='window.key_check_desc(event)')
+		+ html.INPUT(type='text', id='keys_add_event', maxlength='100', minlength='1', placeholder='event')
+		+ html.INPUT(type='checkbox', id='keys_add_enabled', checked='1')
 		+ html.INPUT(type='button', id='keys_add_key_btn', onclick='window.keys_add_key()', value='Scan & add key')
 	)
 	main <= html.DIV(

@@ -7,13 +7,18 @@ One more idea is build **M2M (machine to machine) architecture**. So, you can us
 
 Web server use build-in [bottle](https://www.bottlepy.org/) web framework and build-in [brython](https://brython.info/) client-side web programming language. So web server has pure python implementation on server and client sides.
 
-To decrease HTML server load a part of executed code moved to the client side - to the browser. After page load a browser-side code running to generate content with AJAX requests to server API. For example: `def build_page_main` function in `rfctl_web_client.py` file.
+To decrease HTML server load a _significant part_ of executed code moved to the _client side_ - to the browser. After page load a browser-side code running to generate content with AJAX requests to server API. For example: `def build_page_main` function in `rfctl_web_client.py` file.
 
-HTML page can contain UI elements with one-time (after page load) AJAX request and time-based AJAX requests. See `def api_call` decorator for one-time request and `class ApiCallTimeRefresh` for time-based requests from `class Rfctl` in `rfctl_web_client.py` file.
+HTML page can contain UI elements with one-time AJAX request and time-based AJAX requests (see `class Rfctl` in `rfctl_web_client.py` file):
+- one-time (after page load) AJAX request: see `def api_call` decorator;
+- time-based AJAX requests: see `class ApiCallTimeRefresh`.
 
 Web server workflow:
 
 ![web](img/web/web.png)
+
+Client to server API call using browser AJAX framework:
+![ajax](img/web/ajax.png)
 
 Running web server
 ------------------
